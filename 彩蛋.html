@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>彩蛋惊喜</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f6d5f7, #fbe9d7);
+        }
+
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #modal {
+            background: #fff;
+            padding: 24px 36px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        #modal h3 {
+            margin-top: 0;
+            color: #ff69b4;
+        }
+
+        #modal p {
+            margin: 12px 0 24px;
+            color: #555;
+        }
+
+        #modal button {
+            background: linear-gradient(135deg, #ff85a2, #ff69b4);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 999px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #modal button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.35);
+        }
+
+        .message-box {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 14px 22px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+            font-size: 16px;
+            animation: slideIn 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(50px);
+            backdrop-filter: blur(4px);
+            max-width: 260px;
+            line-height: 1.6;
+        }
+
+        .message-box::before {
+            content: '❤';
+            margin-right: 8px;
+            color: #ff69b4;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="modal-overlay">
+        <div id="modal">
+            <h3>欢迎来到彩蛋现场</h3>
+            <p>准备好迎接满满的惊喜了吗？点击确认，精彩马上开始！</p>
+            <button id="confirm-button">确认</button>
+        </div>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2023/09/26/audio_9004a651d4.mp3?filename=gentle-wind-171701.mp3" type="audio/mpeg">
+        您的浏览器不支持播放音乐。
+    </audio>
+
+    <audio id="pop-sound" preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_a5ebec1c63.mp3?filename=message-notification-6934.mp3" type="audio/mpeg">
+        您的浏览器不支持音效播放。
+    </audio>
+
+    <script>
+        // 弹窗信息列表
+        const messages = [
+            "你是宇宙里最闪亮的那颗星",
+            "今天也要记得好好爱自己",
+            "与你相遇是最甜的巧合",
+            "多喝水，心情才会更闪耀",
+            "抬头看云，心里装满柔软",
+            "偷偷告诉你：我超喜欢你",
+            "保持热爱，奔赴每一场心动",
+            "愿你被世界温柔以待",
+            "星河滚烫，你是梦想",
+            "甜甜的草莓味祝福送给你",
+            "等风也等你",
+            "月光都来排队为你打Call",
+            "做自己的小太阳，无需借光",
+            "下一秒好运就要敲门啦",
+            "和快乐同频率，和烦恼断联",
+            "宇宙很大，但我们刚刚好遇见",
+            "保持笑容，运气就会被吸引",
+            "把烦恼通通抛给流星",
+            "认真生活，也要认真可爱",
+            "愿所有心动都有回应",
+            "心跳声都在为你打节拍",
+            "闪闪发光的是你亮闪闪的梦",
+            "你的温柔值得世界珍藏",
+            "生活需要一点甜，而你刚刚好"
+        ];
+
+        const confirmButton = document.getElementById('confirm-button');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const music = document.getElementById('bg-music');
+        const popSound = document.getElementById('pop-sound');
+
+        confirmButton.onclick = function () {
+            modalOverlay.style.display = 'none';
+
+            music.volume = 0.55;
+            music.play().catch(e => console.log("音乐播放失败:", e));
+
+            startShowingMessages();
+        }
+
+        function startShowingMessages() {
+            let index = 0;
+            const batchSize = 3;
+            const batchDelay = 320;
+
+            function showNextMessageBatch() {
+                for (let i = 0; i < batchSize; i++) {
+                    if (index >= messages.length) {
+                        index = 0;
+                    }
+                    const msg = messages[index];
+                    createMessageBox(msg);
+                    index++;
+                }
+
+                setTimeout(showNextMessageBatch, batchDelay);
+            }
+
+            showNextMessageBatch();
+        }
+
+        function createMessageBox(text) {
+            const msgBox = document.createElement('div');
+            msgBox.className = 'message-box';
+            msgBox.textContent = text;
+
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+
+            msgBox.style.top = Math.random() * (vh - 120) + 20 + 'px';
+            msgBox.style.left = Math.random() * (vw - 220) + 20 + 'px';
+
+            document.body.appendChild(msgBox);
+
+            setTimeout(() => {
+                msgBox.style.animation = 'fadeOut 0.9s forwards';
+            }, 4200);
+
+            setTimeout(() => {
+                msgBox.remove();
+            }, 5000);
+
+            if (popSound) {
+                try {
+                    popSound.currentTime = 0;
+                    popSound.volume = 0.6;
+                    popSound.play().catch(() => { /* ignore autoplay issues */ });
+                } catch (err) {
+                    console.log("提示音播放失败:", err);
+                }
+            }
+        }
+    </script>
+
+</body>
+
+</html>
